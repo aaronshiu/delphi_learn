@@ -1,0 +1,5 @@
+object data_module: Tdata_module
+  OldCreateOrder = False
+  Height = 150
+  Width = 215
+end

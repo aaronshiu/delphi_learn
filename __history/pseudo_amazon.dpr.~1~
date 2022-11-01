@@ -1,0 +1,14 @@
+program pseudo_amazon;
+
+uses
+  Vcl.Forms,
+  form_unit in 'form_unit.pas' {Form1};
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.Run;
+end.

@@ -1,0 +1,130 @@
+unit data_module_unit;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, ADODB, DB, Windows, Dialogs;
+
+type
+  Tdata_module = class(TDataModule)
+    procedure DataModuleSetup(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+
+    // connection related objects
+    conSD: TADOConnection;
+    tblSD: TADOTable;
+    dscSD: TDataSource;
+
+    // query-related objects
+    query: TADOQuery;
+    param: TParameter;
+
+    class var
+      dir, sd_db_name, sd_db_pref, bkup_suf : string;
+      sd_db_full, bkup_full : PChar;
+      bFail: boolean;
+
+    procedure restoreBackup;
+    procedure createBackup;
+    function sendQuery(q: string): TDataSet;
+
+  end;
+
+var
+  data_module: Tdata_module;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+// create the objects for connection - requires error catching
+procedure Tdata_module.DataModuleSetup(Sender: TObject);
+begin
+
+// variable database name/suffix/file type - possibly can be passed in as arguments for more flexibility alongside tbl name
+// testing whether this implementation affects above variable declaration...
+dir := '..\..\';
+sd_db_name := 'sd_database';
+sd_db_pref := '.mdb';
+bkup_suf := ' - Copy';
+
+// cross platform, to not use alias for unicode string (string), use COM widestring (PChar) instead
+sd_db_full := PChar(dir + sd_db_name + sd_db_pref);
+bkup_full := PChar(dir + sd_db_name + bkup_suf + sd_db_pref);
+
+conSD := TADOConnection.Create(data_module);
+tblSD := TADOTable.Create(data_module);
+dscSD := TDataSource.Create(data_module);
+
+// setup connection ... turn db path/name into multi-unit accessible variable
+conSD.ConnectionString := 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' + sd_db_full + ';Mode=ReadWrite;Persist Security Info=False';
+conSD.LoginPrompt := FALSE;
+conSD.Open;
+
+// setup table(s)
+tblSD.Connection := conSD;
+tblSD.TableName := 'table_one';
+
+// setup data source
+dscSD.DataSet := tblSD;
+tblSD.Open;
+
+end;
+
+// restore from database backup if copy exists and delete backup
+procedure Tdata_module.restoreBackup;
+begin
+  if FileExists(bkup_full) then
+  begin
+    conSD.close;
+    tblSD.Destroy;
+    DeleteFile(sd_db_full);
+    CopyFile(bkup_full, sd_db_full, bFail);
+    DeleteFile(bkup_full);
+    DataModuleSetup(data_module);
+  end
+  else ShowMessage('Database backup does not exist!');
+end;
+
+// create a copy of the database if copy does not exist
+procedure Tdata_module.createBackup;
+begin
+  if FileExists(bkup_full) then
+  ShowMessage('Database backup already exists!')
+  else
+  begin
+  CopyFile(sd_db_full, bkup_full, bFail);
+  ShowMessage('Database backup created!');
+  end;
+end;
+
+// select entries where price less than specific value - requires error catching - turn string into passable variable for flexible procedure
+function Tdata_module.sendQuery(q: string);
+begin
+  ShowMessage(q);
+  query := TADOQuery.Create(data_module);
+  query.Connection := conSD;
+  query.SQL.Add(q);
+
+  // update parameter from query string with its details.. use a TEdit input in future to add custom budget amount
+  //query.ParamCheck := True;
+  param := query.Parameters.ParamByName('specificValue');
+  param.DataType := ftCurrency;
+  param.Value := 30.00;
+
+  // apparently improves performance.. look into in future..
+  query.Prepared := True;
+  
+  // activates query?
+  query.Active := True;
+
+  dscSD.DataSet := query;
+  dscSD.Enabled := True;
+end;
+
+end.

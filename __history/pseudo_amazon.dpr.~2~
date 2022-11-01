@@ -2,7 +2,7 @@ program pseudo_amazon;
 
 uses
   Vcl.Forms,
-  form_unit in 'form_unit.pas' {formOne},
+  form_unit in 'form_unit.pas' {the_form},
   data_module_unit in 'data_module_unit.pas' {data_module: TDataModule};
 
 {$R *.res}
@@ -10,7 +10,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  Application.CreateForm(TformOne, formOne);
+  Application.CreateForm(Tthe_form, the_form);
   Application.CreateForm(Tdata_module, data_module);
   Application.Run;
 end.

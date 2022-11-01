@@ -1,6 +1,6 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{AEB50518-5600-4DF7-8374-C20CBC9D14F1}</ProjectGuid>
+        <ProjectGuid>{AFE5009C-A871-4479-B596-5E20BBC91ED3}</ProjectGuid>
         <ProjectVersion>19.2</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
@@ -98,12 +98,12 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="form.pas">
-            <Form>main</Form>
+        <DCCReference Include="form_unit.pas">
+            <Form>formOne</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="dmSD_u.pas">
-            <Form>dmSD</Form>
+        <DCCReference Include="data_module_unit.pas">
+            <Form>data_module</Form>
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
